@@ -1,40 +1,29 @@
-'use client'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Hero() {
   return (
-    <section className="w-full bg-gradient-to-b from-gray-100 to-white py-16 md:py-24">
-      <div className="container-mobile max-w-7xl mx-auto">
-        <div className="flex flex-col items-center text-center">
-          {/* Hero Image Placeholder */}
-          <div className="w-full aspect-video bg-gray-300 rounded-lg mb-8 overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=600&fit=crop"
-              alt="Hero Banner"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Hero Content */}
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-bold text-black mb-4">
-              Welcome to DeadStar
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8">
-              Discover our curated collection of premium products, designed for the modern lifestyle.
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-black text-white font-semibold rounded hover:bg-gray-800 transition">
-                Shop Now
-              </button>
-              <button className="px-8 py-3 border-2 border-black text-black font-semibold rounded hover:bg-gray-100 transition">
-                Learn More
-              </button>
-            </div>
-          </div>
+    <section className="w-full bg-gradient-to-b from-slate-50 to-white flex justify-center items-center">
+      <div className="relative h-screen w-full"> {/* Parent container with defined dimensions */}
+        <Image
+          src="https://pub-9fff275bb0a04e8a815ba0f74fbf4159.r2.dev/s-l1200%20(1).jpg"
+          alt="Hero image description"
+          fill // Fills the parent container
+          className="object-cover" // Ensures the image covers the entire space without distortion
+          priority // Loads the image with high priority for LCP
+        />
+        <div className="container-mobile w-full max-w-6xl mx-auto flex flex-col items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <h2 className="text-4xl md:text-6xl font-bold text-center mb-8">DEADSTAR</h2>
+          <Link
+            href="/products"
+            className="px-12 py-5 md:px-16 md:py-6 bg-slate-900 text-white text-lg md:text-xl font-semibold rounded-full hover:bg-slate-800 transition"
+          >
+            Shop All Products
+          </Link>
         </div>
+
       </div>
+
     </section>
   )
 }
