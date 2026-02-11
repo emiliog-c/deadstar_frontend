@@ -1,25 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Medusa from "@medusajs/js-sdk"
+import { sdk } from "@/lib/sdk"
 
-let MEDUSA_BACKEND_URL = "http://localhost:9000"
-
-if (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL) {
-  MEDUSA_BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
-}
-export const sdk = new Medusa({
-  baseUrl: MEDUSA_BACKEND_URL,
-  debug: process.env.NODE_ENV === "development",
-  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
-})
 
 
 export default function DisplayItems() {
   const [products, setProducts] = useState([])
 
   useEffect(() => {
-    sdk.store.product.list()
+    sdk.store.product.list({
+      collection_id: "pcol_01KGP0V00A8HB48ZKRHY9ZB7HC",
+      limit: 100,
+      fields: "handle, id, title, thumbnail, images",
+    })
       .then(({ products, count, offset, limit }) => {
         setProducts(products)
         console.log(products)
@@ -32,10 +26,10 @@ export default function DisplayItems() {
   return products.map((product) => (
     <div
       key={product.id}
-      className="group cursor-pointer flex flex-col w-full"
+      className="group cursor-pointer flex flex-col w-full max-w-[220px]"
     >
       {/* Product Image */}
-      <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-2 md:mb-3" style={{ width: '140px', height: '140px' }}>
+      <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-2 md:mb-3 w-full aspect-square">
         <img
           src={product.thumbnail || ''}
           alt={product.title}
