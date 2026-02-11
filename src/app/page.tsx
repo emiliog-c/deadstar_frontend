@@ -1,18 +1,12 @@
-'use client'
-
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
-import FeaturedItems from '@/components/FeaturedItems'
-import Collections from '@/components/Collections'
-import Footer from '@/components/Footer'
-import DisplayItems from '@/components/itemobtain'
 import ProductGrid from '@/components/ProductGrid'
 
-export default function Home() {
+export default async function Home() {
   return (
     <div className="w-full min-h-screen bg-white">
       <Navbar />
-      <main>
+      <main className="flex flex-col items-center">
         <Hero />
         <ProductGrid title="Featured Items" />
         {/* <DisplayItems /> */}
