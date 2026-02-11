@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
-
+import { RegionProvider } from '@/components/RegionContext'
+import { CartProvider } from '@/components/CartProvider'
 export const metadata: Metadata = {
   title: 'DeadStar - Premium Products',
   description: 'Discover our curated collection of premium products for the modern lifestyle.',
@@ -15,7 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <RegionProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </RegionProvider>
       </body>
     </html>
   )
