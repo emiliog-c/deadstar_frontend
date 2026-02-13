@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
-import ProductGrid from '@/components/ProductGrid'
+import ItemObtain from '@/components/CategoryGrid'
 
 export default async function Home() {
   return (
@@ -8,7 +8,7 @@ export default async function Home() {
       <Navbar />
       <main className="flex flex-col items-center">
         <Hero />
-        <ProductGrid title="Featured Items" />
+        <ItemObtain title="Featured Items" />
         {/* <DisplayItems /> */}
         {/* <FeaturedItems /> */}
         {/* <Collections /> */}
