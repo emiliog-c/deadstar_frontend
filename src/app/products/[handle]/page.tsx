@@ -3,7 +3,11 @@ import { HttpTypes } from "@medusajs/types"
 import ImageGalleryClient from './imageGallery'
 import { sdk } from "@/lib/sdk"
 import CartAdd from '@/components/AddToCart'
-type Params = { params: { handle: string } }
+import FormattedPrice from '@/components/FormattedPrice'
+type Params = { params: { handle: string } | Promise<{ handle: string }> }
+
+
+export const revalidate = 300 // seconds
 
 export default async function Product({ params }: Params) {
   const { handle } = await params
@@ -12,6 +16,8 @@ export default async function Product({ params }: Params) {
   const { products } = await sdk.store.product.list({
     handle,
     region_id: region?.id,
+  },{
+    next: { tags: [`product-${handle}`], revalidate: 300 },
   })
   const product = products[0]
 
@@ -29,17 +35,17 @@ export default async function Product({ params }: Params) {
   }
 
   const variant = product?.variants?.[0]
-  const calculatedAmount = variant?.calculated_price?.calculated_amount
-  const fallbackAmount = variant?.prices?.[0]?.amount
-  const currencyCode = variant?.calculated_price?.currency_code || "usd"
-  const amount = calculatedAmount ?? fallbackAmount
-  const formattedPrice =
-    typeof amount === "number"
-      ? new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: currencyCode.toUpperCase(),
-        }).format(amount)
-      : null
+  // const calculatedAmount = variant?.calculated_price?.calculated_amount
+  // const fallbackAmount = variant?.prices?.[0]?.amount
+  // const currencyCode = variant?.calculated_price?.currency_code || "usd"
+  // const amount = calculatedAmount ?? fallbackAmount
+  // const formattedPrice =
+  //   typeof amount === "number"
+  //     ? new Intl.NumberFormat("en-US", {
+  //         style: "currency",
+  //         currency: currencyCode.toUpperCase(),
+  //       }).format(amount)
+  //     : null
   const images = product.images.map ((img) => ({
     original: img.url,
     thumbnail: img.url,
@@ -60,8 +66,9 @@ export default async function Product({ params }: Params) {
                 {product.title}
               </h1>
               <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 mt-4">
-                {formattedPrice ?? "Price unavailable"}
+                <FormattedPrice product={product} />
               </h2>
+              <CartAdd variant_id={variant.id} />
               <h3 className="text-lg md:text-xl font-medium text-slate-700 mt-2">
                 {`Height: ${product.height} cm`}
               </h3>
@@ -75,7 +82,6 @@ export default async function Product({ params }: Params) {
               <p className="mt-4 text-base md:text-lg text-slate-600 leading-relaxed">
                 {product.description}
               </p>
-              <CartAdd variant_id={variant.id} />
             </div>
           </div>
         </div>
