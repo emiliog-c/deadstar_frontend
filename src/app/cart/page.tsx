@@ -1,12 +1,19 @@
 "use client"
 
+import Link from "next/link"
 import Navbar from "@/components/Navbar"
 import { useCart } from "@/components/CartProvider"
+import CartRemove from "@/components/RemoveFromCart"
+import { FiTrash2 } from "react-icons/fi"
 
 export default function CartPage() {
   const { cart } = useCart()
 
-  const currencyCode = cart?.currency_code || "usd"
+  const canCheckout = Boolean(
+    cart && cart.items && cart.items.length > 0
+  )
+
+  const currencyCode = cart?.currency_code || "AUD"
   const formatPrice = (amount?: number | null) => {
     if (typeof amount !== "number") {
       return "-"
@@ -22,8 +29,8 @@ export default function CartPage() {
     <div className="w-full min-h-screen bg-white">
       <Navbar />
       <main className="w-full flex justify-center">
-        <div className="container-mobile w-full max-w-4xl mx-auto py-10 md:py-16">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
+        <div className="w-full px-4 sm:px-6 md:px-12 lg:px-32 mx-auto py-10 md:py-16">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900">
             Your Cart
           </h1>
 
@@ -38,46 +45,74 @@ export default function CartPage() {
           {cart && cart.items && cart.items.length > 0 && (
             <div className="mt-8 space-y-6">
               <div className="space-y-4">
-                {cart.items.map((item) => (
+                {cart.items.map((product) => (
                   <div
-                    key={item.id}
-                    className="flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-200 rounded-lg p-4"
+                    key={product.id}
+                    className="flex items-start gap-2 sm:gap-4 border border-slate-200 rounded-lg p-3 sm:p-4"
                   >
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900">
-                        {item.title || item.variant?.title || "Item"}
-                      </h2>
-                      <p className="text-sm text-slate-600">
-                        Quantity: {item.quantity}
-                      </p>
+                    {/* Remove button (trash icon) on left */}
+                    <div className="pt-1 flex-shrink-0">
+                      <CartRemove lineItemId={product.id} icon={true} />
                     </div>
-                    <div className="text-slate-800 font-medium">
-                      {formatPrice(item.total)}
+
+                    {/* Product image */}
+                    <div className="w-16 sm:w-24 md:w-28 h-auto bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+                      <img
+                        src={product.thumbnail || null}
+                        alt={product.title || "Cart item"}
+                        className="w-full h-auto object-cover"
+                      />
+                    </div>
+
+                    {/* Product title */}
+                    <div className="flex-grow min-w-0">
+                      <h2 className="text-sm sm:text-base md:text-lg font-semibold text-slate-900 line-clamp-2">
+                        {product.title || product.variant?.title || "Item"}
+                      </h2>
+                    </div>
+
+                    {/* Price on right */}
+                    <div className="text-slate-800 font-medium text-right flex-shrink-0 text-sm sm:text-base">
+                      ${product.unit_price}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-slate-200 pt-4 space-y-1 text-slate-800">
+              <div className="border-t border-slate-200 pt-4 space-y-1 text-slate-800 text-sm sm:text-base">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>{formatPrice(cart.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>{formatPrice(cart.shipping_total)}</span>
-                </div>
-                <div className="flex justify-between">
                   <span>Tax</span>
                   <span>{formatPrice(cart.tax_total)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-semibold">
+                <div className="flex justify-between text-base sm:text-lg font-semibold">
                   <span>Total</span>
                   <span>{formatPrice(cart.total)}</span>
                 </div>
               </div>
             </div>
           )}
+
+          <div className="mt-8 flex justify-end">
+            {canCheckout ? (
+              <Link
+                href="/checkout/address"
+                className="px-4 py-2 bg-slate-900 text-white rounded-md"
+              >
+                Checkout
+              </Link>
+            ) : (
+              <button
+                className="px-4 py-2 bg-slate-200 text-slate-500 rounded-md cursor-not-allowed"
+                disabled
+              >
+                Checkout
+              </button>
+            )}
+          </div>
         </div>
       </main>
     </div>
