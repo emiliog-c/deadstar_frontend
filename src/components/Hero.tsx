@@ -13,9 +13,9 @@ export default function Hero() {
           priority // Loads the image with high priority for LCP
         />
         <div className="container-mobile w-full max-w-6xl mx-auto flex flex-col items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <h2 className="text-4xl md:text-6xl font-bold text-center mb-8">DEADSTAR</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-center mb-8">d_eadstar</h2>
           <Link
-            href="/products"
+            href="/category/all_products"
             className="px-12 py-5 md:px-16 md:py-6 bg-slate-900 text-white text-lg md:text-xl font-semibold rounded-full hover:bg-slate-800 transition"
           >
             Shop All Products
