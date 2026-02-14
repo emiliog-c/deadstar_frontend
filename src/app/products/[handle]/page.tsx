@@ -4,6 +4,7 @@ import ImageGalleryClient from './imageGallery'
 import { sdk } from "@/lib/sdk"
 import CartAdd from '@/components/AddToCart'
 import FormattedPrice from '@/components/FormattedPrice'
+import { isProductInStock } from '@/components/OutOfStock'
 type Params = { params: { handle: string } | Promise<{ handle: string }> }
 
 
@@ -16,6 +17,7 @@ export default async function Product({ params }: Params) {
   const { products } = await sdk.store.product.list({
     handle,
     region_id: region?.id,
+    fields: "id, title, description, height, width, length, images, images.url, variants, variants.prices, variants.calculated_price, variants.calculated_price.calculated_amount, variants.calculated_price.currency_code, variants.inventory_quantity, variants.manage_inventory",
   },{
     next: { tags: [`product-${handle}`], revalidate: 300 },
   })
@@ -46,10 +48,11 @@ export default async function Product({ params }: Params) {
   //         currency: currencyCode.toUpperCase(),
   //       }).format(amount)
   //     : null
-  const images = product.images.map ((img) => ({
+  const images = (product.images ?? []).map ((img) => ({
     original: img.url,
     thumbnail: img.url,
   }))
+  const inStock = isProductInStock(product)
   return (
     <div className="w-full min-h-screen bg-white">
       <Navbar />
@@ -68,7 +71,16 @@ export default async function Product({ params }: Params) {
               <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 mt-4">
                 <FormattedPrice product={product} />
               </h2>
-              <CartAdd variant_id={variant.id} />
+              {inStock ? (
+                <CartAdd variant_id={variant.id} />
+              ) : (
+                <button
+                  disabled
+                  className="mt-6 w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed opacity-60"
+                >
+                  Sold Out
+                </button>
+              )}
               <h3 className="text-lg md:text-xl font-medium text-slate-700 mt-2">
                 {`Height: ${product.height} cm`}
               </h3>
