@@ -1,26 +1,19 @@
 import { sdk } from "@/lib/sdk"
 import { HttpTypes } from "@medusajs/types"
 import Link from "next/link"
+import FormattedPrice from "./FormattedPrice"
+import { isProductInStock } from "./OutOfStock"
 
 export interface CategoryTableProps {
   handle?: string
 }
 
-const formatPrice = (product: HttpTypes.StoreProduct) => {
+const hasPriceData = (product: HttpTypes.StoreProduct) => {
   const variant = product.variants?.[0]
   const calculatedAmount = variant?.calculated_price?.calculated_amount
   const fallbackAmount = variant?.prices?.[0]?.amount
-  const currencyCode = variant?.calculated_price?.currency_code || "usd"
   const amount = calculatedAmount ?? fallbackAmount
-
-  if (typeof amount !== "number") {
-    return null
-  }
-
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode.toUpperCase(),
-  }).format(amount)
+  return typeof amount === "number"
 }
 
 export default async function CategoryTable({
@@ -29,7 +22,7 @@ export default async function CategoryTable({
   const { regions } = await sdk.store.region.list()
   const regionId = regions?.[0]?.id
   const { product_categories } = await sdk.store.category.list({
-    handle: handle || "all_products",
+    handle: handle || "featured_products",
     fields: "id,handle,name",
   }, 
   { next: { tags: ["product_categories"], revalidate: 60 } })
@@ -42,7 +35,7 @@ export default async function CategoryTable({
         limit: 100,
         region_id: regionId,
         fields:
-          "handle, id, title, thumbnail, images, variants, variants.prices, variants.calculated_price, variants.calculated_price.calculated_amount, variants.calculated_price.currency_code",
+          "handle, id, title, thumbnail, images, variants, variants.prices, variants.calculated_price, variants.calculated_price.calculated_amount, variants.calculated_price.currency_code, variants.inventory_quantity, variants.manage_inventory",
       })
     : { products: [] as HttpTypes.StoreProduct[] }
 
@@ -67,6 +60,11 @@ export default async function CategoryTable({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
+                  {!isProductInStock(product) && (
+                    <div className="absolute bottom-0 right-0 bg-black bg-opacity-75 text-white px-3 py-1 text-sm font-semibold rounded-tl-lg">
+                      Sold Out
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -74,9 +72,9 @@ export default async function CategoryTable({
                     {product.title}
                   </h3>
 
-                  {formatPrice(product) ? (
+                  {hasPriceData(product) ? (
                     <p className="text-base md:text-lg font-bold text-black">
-                      {formatPrice(product)}
+                      <FormattedPrice product={product} />
                     </p>
                   ) : (
                     <p className="text-base md:text-lg font-bold text-black">
