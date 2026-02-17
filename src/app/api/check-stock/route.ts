@@ -16,12 +16,12 @@ export async function POST(request: NextRequest) {
     const { regions } = await sdk.store.region.list()
     const regionId = regions?.[0]?.id
 
-    // Fetch the specific product with its inventory data
+    // Fetch the specific product with inventory details
     const { product } = await sdk.store.product.retrieve(
       productId,
       {
         region_id: regionId,
-        fields: "id,handle,title,variants,variants.id,variants.manage_inventory,variants.inventory_quantity",
+        fields: "id,handle,title,variants,variants.id,variants.manage_inventory,variants.inventory_quantity,variants.inventory_items,variants.inventory_items.inventory,variants.inventory_items.inventory.location_levels,variants.inventory_items.inventory.location_levels.stocked_quantity,variants.inventory_items.inventory.location_levels.reserved_quantity",
       }
     )
 
@@ -46,11 +46,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if variant is in stock using the same logic as isProductInStock
-    const inStock =
-      variant.manage_inventory === false || (variant.inventory_quantity || 0) > 0
+    // Check if variant is in stock
+    let inStock = true
 
-    console.log(`Stock result: inStock=${inStock}, manage_inventory=${variant.manage_inventory}, inventory_quantity=${variant.inventory_quantity}`)
+    // If manage_inventory is false, always in stock
+    if (variant.manage_inventory === false) {
+      inStock = true
+    } else {
+      // Calculate available quantity from inventory items
+      let totalStocked = 0
+      let totalReserved = 0
+
+      if (variant.inventory_items && variant.inventory_items.length > 0) {
+        for (const invItem of variant.inventory_items) {
+          if (invItem.inventory?.location_levels && invItem.inventory.location_levels.length > 0) {
+            for (const locLevel of invItem.inventory.location_levels) {
+              totalStocked += locLevel.stocked_quantity || 0
+              totalReserved += locLevel.reserved_quantity || 0
+            }
+          }
+        }
+      }
+
+      // Available = stocked - reserved
+      const available = totalStocked - totalReserved
+      inStock = available > 0
+    }
+
+    console.log(`Stock result: inStock=${inStock}, manage_inventory=${variant.manage_inventory}`)
 
     return NextResponse.json({
       inStock,

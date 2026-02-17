@@ -58,10 +58,11 @@ export const isVariantInStock = (
 /**
  * Check if a variant is in stock via API (real-time check)
  * Makes an API call to get the latest stock information from the server
+ * Checks if reserved_quantity >= stocked_quantity to determine stock status
  * Useful for client-side components that need real-time stock data
  * @param productId - The ID of the product
  * @param variantId - The ID of the variant to check
- * @returns Promise resolving to true if in stock, false if out of stock
+ * @returns Promise resolving to true if in stock (available = stocked - reserved > 0), false if out of stock
  */
 export const checkVariantStockRealtime = async (
   productId: string | undefined,
